@@ -8,7 +8,7 @@ import argparse
 
 
 
-def main(argv):
+def main():
 
     parser = argparse.ArgumentParser(description='Send command directly to wpa_supplicant. Similar to wpa_cli, '
                                                  'but command line only.')
@@ -28,7 +28,9 @@ def main(argv):
 
     # Send data to remote server
     # print('# Sending data to server')
-    request = args.command.upper() + ' '.join(args.params)
+    request = args.command.upper()
+    if  args.params != '':
+        request = request + ' ' + ' '.join(args.params)
     #print request
 
 
@@ -56,4 +58,4 @@ def main(argv):
         sys.exit(error)
 
 if __name__ == "__main__":
-	main(sys.argv)
+	main()
