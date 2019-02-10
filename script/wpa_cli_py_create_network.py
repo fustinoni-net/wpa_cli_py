@@ -42,7 +42,7 @@ def main():
     parser.add_argument("ifname", help="Specify the interface that is being used.")
     parser.add_argument("protocol", choices=['OPEN', 'WEP', 'WPA', 'WPA2', 'EAP'],
                         help="Specify the protocol used by the wifi network. Needed to setup the required parameters.", default='')
-    # parser.add_argument("-i", "--idNetwork", help="Specify the network id.")
+    parser.add_argument("-i", "--idNetwork", help="Specify the network id.")
     parser.add_argument("-s", "--ssid", help="The SSID of the network.")
     parser.add_argument("-b", "--bssid", help="The BSSID of the network.")
     parser.add_argument("-P", "--password", help="The network password. Converted in the right parameters needed by the network protocol.")
@@ -70,6 +70,9 @@ def main():
     if args.password and not args.password.startswith('0x'):
         args.password = '"' + args.password + '"'
 
+    if args.identity:
+        args.identity = '"' + args.identity + '"'
+
     error = 0
     out = ''
     net_id = ''
@@ -83,9 +86,11 @@ def main():
         #     raise SendCommandNotOkException('ssid or bssid needed' + '\nKO')
 
         s.bind(client_file)
-
-        net_id, data = addNetwork(s, server_file)
-        out = out + data + '\n'
+        if args.idNetwork:
+            net_id = args.idNetwork
+        else:
+            net_id, data = addNetwork(s, server_file)
+            out = out + data + '\n'
 
         if args.ssid and args.ssid != '""' and args.ssid != '':
             data = setNetworkProperty(s, server_file, net_id, 'ssid', args.ssid)
@@ -146,7 +151,7 @@ def main():
                 out = out + data + '\n'
 
             #  key_mgmt=WPA-EAP
-            data = setNetworkProperty(s, server_file, net_id, 'key_mgmt', args.key_mgmt)
+            data = setNetworkProperty(s, server_file, net_id, 'key_mgmt', args.keyMgmt)
             out = out + data + '\n'
 
         if args.enabled:

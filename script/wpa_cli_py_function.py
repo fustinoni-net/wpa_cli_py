@@ -86,6 +86,12 @@ def sendDetach(socket, socket_file):
 	return command + '\n' + data
 
 
+def sendReconfigure(socket, socket_file):
+	command = 'RECONFIGURE'
+	data = sendCommandOkValidated(socket, socket_file, command, 5.0, 5.0)
+	return command + '\n' + data
+
+
 def startScan(socket, socket_file):
 	command = 'SCAN'
 	data = sendCommandOkValidated(socket, socket_file, command, 5.0, 5.0)

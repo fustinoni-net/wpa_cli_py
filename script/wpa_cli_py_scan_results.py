@@ -69,7 +69,7 @@ def main():
 		data = startScan(s, server_file)
 		out = out + data + '\n'
 
-		data, log_out = readDataUntilFound(s, ['^<3>CTRL-EVENT-SCAN-RESULTS '], 15, 5)
+		data, log_out = readDataUntilFound(s, ['^<3>CTRL-EVENT-SCAN-RESULTS '], 30, 5)
 		out = out + log_out + '\n'
 
 		data = sendDetach(s, server_file)

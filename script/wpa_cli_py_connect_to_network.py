@@ -47,6 +47,7 @@ def main():
 
 	out = ''
 	error = 0
+	network_list = []
 
 	s = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
 
@@ -66,20 +67,13 @@ def main():
 			data = selectNetwork(s, server_file, args.idNetwork)
 			out = out + data + '\n'
 
-			data, log_out = readDataUntilFound(s, ['^<3>CTRL-EVENT-CONNECTED ', '^<4>Failed to initiate sched scan', '^FAIL\n'], 15, 5)
+			data, log_out = readDataUntilFound(s, ['^<3>CTRL-EVENT-CONNECTED ', '^<3>Association request to the driver failed', '^<4>Failed to initiate sched scan', '^FAIL\n'], 60, 5)
 			out = out + log_out + '\n'
 
 			data = sendDetach(s, server_file)
 			out = out + data + '\n'
 
-			for n in network_list:
-				if "[DISABLED]" not in n.flags:
-					try:
-						data = enableNetwork(s, server_file, n.id)
-					except SendCommandNotOkException as e:
-						data = e.message
 
-					out = out + data + '\n'
 
 	except SendCommandException as e1:
 		out = out + 'E1: ' + e1.message + '\n'
@@ -95,11 +89,24 @@ def main():
 		error = 10
 
 	finally:
+		out = enableNetwworks(network_list, out, s, server_file)
 		sys.stdout.write(out)
 		s.close()
 		os.unlink(client_file)
 		os.system('rm -f ' + client_file)
 		sys.exit(error)
+
+
+def enableNetwworks(network_list, out, s, server_file):
+	for n in network_list:
+		if "[DISABLED]" not in n.flags:
+			try:
+				data = enableNetwork(s, server_file, n.id)
+			except BaseException as e:
+				data = e.message
+
+			out = out + data + '\n'
+	return out
 
 
 if __name__ == "__main__":

@@ -86,4 +86,12 @@ The purpose of this script collection is to simplify the configuration of wpa_su
 My first use of python...
 
 
+To install the library just execute:
+    
+    sudo ./install.sh
+    
+This will copy the python script in /sbin/ removing the .py extension and adjust the files permission.
+
+
+
 
