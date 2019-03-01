@@ -73,8 +73,6 @@ def main():
 			data = sendDetach(s, server_file)
 			out = out + data + '\n'
 
-
-
 	except SendCommandException as e1:
 		out = out + 'E1: ' + e1.message + '\n'
 		error = 1
@@ -89,7 +87,7 @@ def main():
 		error = 10
 
 	finally:
-		out = enableNetwworks(network_list, out, s, server_file)
+		out = enableNetworks(network_list, out, s, server_file)
 		sys.stdout.write(out)
 		s.close()
 		os.unlink(client_file)
@@ -97,7 +95,7 @@ def main():
 		sys.exit(error)
 
 
-def enableNetwworks(network_list, out, s, server_file):
+def enableNetworks(network_list, out, s, server_file):
 	for n in network_list:
 		if "[DISABLED]" not in n.flags:
 			try:

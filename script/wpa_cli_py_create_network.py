@@ -48,8 +48,8 @@ def main():
     parser.add_argument("-P", "--password", help="The network password. Converted in the right parameters needed by the network protocol.")
     parser.add_argument("-r", "--priority",
                         help="The network priority.", default='0', type=lambda d: int(d))
-    parser.add_argument("-e", "--enabled",
-                        help="Enable the network.", action="store_true")
+    parser.add_argument("-d", "--disabled",
+                        help="Disable the network.", action="store_true")
     parser.add_argument("-k", "--keyMgmt",
                         help="EAP type for EAP connections. See: https://w1.fi/cgit/hostap/plain/wpa_supplicant/wpa_supplicant.conf",
                         choices=['WPA-PSK', 'WPA-EAP', 'NONE', 'WPA-NONE', 'FT-PSK', 'FT-EAP', 'FT-EAP-SHA384', 'WPA-PSK-SHA256', 'WPA-EAP-SHA256', 'SAE', 'FT-SAE', 'WPA-EAP-SUITE-B', 'WPA-EAP-SUITE-B-192', 'OSEN', 'FILS-SHA256', 'FILS-SHA384', 'FT-FILS-SHA256', 'FT-FILS-SHA384', 'OWE', 'DPP'])
@@ -58,6 +58,8 @@ def main():
     parser.add_argument("-E", "--eap",
                         help="EAP type for EAP connections.See: https://w1.fi/cgit/hostap/plain/wpa_supplicant/wpa_supplicant.conf",
                         choices=['PEAP', 'TLS', 'TTLS', 'PWD', 'SIM', 'AKA', 'AKA''', 'FAST', 'LEAP'])
+
+    parser.add_argument("--scanSsid", help="SCAN_SSID flag.", action="store_true")
 
     args = parser.parse_args()
 
@@ -96,7 +98,13 @@ def main():
             data = setNetworkProperty(s, server_file, net_id, 'ssid', args.ssid)
             out = out + data + '\n'
         else:
+            args.scanSsid = True
+
+        if args.scanSsid:
             data = setNetworkProperty(s, server_file, net_id, 'scan_ssid', '1')
+            out = out + data + '\n'
+        else:
+            data = setNetworkProperty(s, server_file, net_id, 'scan_ssid', '0')
             out = out + data + '\n'
 
         if args.bssid and args.bssid != '':
@@ -154,12 +162,11 @@ def main():
             data = setNetworkProperty(s, server_file, net_id, 'key_mgmt', args.keyMgmt)
             out = out + data + '\n'
 
-        if args.enabled:
-            print 'enabled'
-            data = enableNetwork(s, server_file, net_id)
+        if args.disabled:
+            data = disableNetwork(s, server_file, net_id)
             out = out + data + '\n'
         else:
-            data = disableNetwork(s, server_file, net_id)
+            data = enableNetwork(s, server_file, net_id)
             out = out + data + '\n'
 
         data = saveConfig(s, server_file)

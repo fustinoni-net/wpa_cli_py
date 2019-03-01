@@ -122,8 +122,8 @@ def addNetwork(socket, socket_file):
 	return data.rstrip(), command + '\n' + data
 
 
-def removeNetwork(socket, socket_file, id):
-	command = 'REMOVE_NETWORK ' + id.rstrip()
+def removeNetwork(socket, socket_file, net_id):
+	command = 'REMOVE_NETWORK ' + net_id.rstrip()
 	data = sendCommandOkValidated(socket, socket_file, command, 5.0, 5.0)
 	return command + '\n' + data
 
