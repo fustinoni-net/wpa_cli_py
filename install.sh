@@ -34,11 +34,13 @@ cp script/wpa_cli_py_connect_to_network.py ${INSTALL_DIR}wpa_cli_py_connect_to_n
 cp script/wpa_cli_py_create_network.py ${INSTALL_DIR}wpa_cli_py_create_network
 cp script/wpa_cli_py_function.py ${INSTALL_DIR}wpa_cli_py_function.py
 cp script/wpa_cli_py_scan_results.py ${INSTALL_DIR}wpa_cli_py_scan_results
+cp script/wpa_cli_py_wps_connect_to_network.py ${INSTALL_DIR}wpa_cli_py_wps_connect_to_network
 
 chmod +x ${INSTALL_DIR}wpa_cli_py
 chmod +x ${INSTALL_DIR}wpa_cli_py_connect_to_network
 chmod +x ${INSTALL_DIR}wpa_cli_py_create_network
 chmod +x ${INSTALL_DIR}wpa_cli_py_scan_results
+chmod +x ${INSTALL_DIR}wpa_cli_py_wps_connect_to_network
 
 
 

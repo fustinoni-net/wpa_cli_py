@@ -25,20 +25,23 @@
 #
 
 
+import argparse
+import os
 import socket
 import sys
-import os
 import time
-import argparse
 
-from wpa_cli_py_function import getNetworkListAndCurrentId, sendAttach, selectNetwork, readDataUntilFound, \
-    sendDetach, SendCommandNotOkException, enableNetwork, SendCommandException, ReadTimeoutException
+from wpa_cli_py_function import sendWpsPbc, sendWpsPin
+from wpa_cli_py_function import sendAttach, readDataUntilFound, \
+    sendDetach, SendCommandNotOkException, SendCommandException, ReadTimeoutException
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Force wpa_supplicant to connect to a specific network.')
+
+    parser = argparse.ArgumentParser(description='Force wpa_supplicant to connect to a network using wps.')
     parser.add_argument("ifname", help="Specify the interface that is being used.")
-    parser.add_argument("idNetwork", help="Specify the network id to connect to.")
+    parser.add_argument("-p", "--pin", help="If present the wps_pin connection will be use.")
+    parser.add_argument("-b", "--bssid", help="The BSSID of the network. Specific for connections using pin. The default calue is any.", default='any')
     args = parser.parse_args()
 
     server_file = "/var/run/wpa_supplicant/" + args.ifname  # type: str
@@ -46,7 +49,6 @@ def main():
 
     out = ''
     error = 0
-    network_list = []
 
     s = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
 
@@ -54,25 +56,21 @@ def main():
 
         s.bind(client_file)
 
-        network_list, current_network, out = getNetworkListAndCurrentId(s, server_file, out)
+        data = sendAttach(s, server_file)
+        out = out + data + '\n'
 
-        if args.idNetwork == current_network:
-            out = out + 'OK' + '\n'
+        if args.pin:
+            data = sendWpsPin(s, server_file, args.bssid, args.pin)
         else:
+            data = sendWpsPbc(s, server_file)
 
-            data = sendAttach(s, server_file)
-            out = out + data + '\n'
+        out = out + data + '\n'
 
-            data = selectNetwork(s, server_file, args.idNetwork)
-            out = out + data + '\n'
+        data, log_out = readDataUntilFound(s, ['^<3>CTRL-EVENT-CONNECTED ', '<3>WPS-TIMEOUT ', '^<3>Association request to the driver failed', '^<4>Failed to initiate sched scan', '^FAIL\n'], 60, 5)
+        out = out + log_out + '\n'
 
-            data, log_out = readDataUntilFound(s, ['^<3>CTRL-EVENT-CONNECTED ',
-                                                   '^<3>Association request to the driver failed',
-                                                   '^<4>Failed to initiate sched scan', '^FAIL\n'], 60, 5)
-            out = out + log_out + '\n'
-
-            data = sendDetach(s, server_file)
-            out = out + data + '\n'
+        data = sendDetach(s, server_file)
+        out = out + data + '\n'
 
     except SendCommandException as e1:
         out = out + 'E1: ' + e1.message + '\n'
@@ -88,24 +86,11 @@ def main():
         error = 10
 
     finally:
-        out = enableNetworks(network_list, out, s, server_file)
         sys.stdout.write(out)
         s.close()
         os.unlink(client_file)
         os.system('rm -f ' + client_file)
         sys.exit(error)
-
-
-def enableNetworks(network_list, out, s, server_file):
-    for n in network_list:
-        if "[DISABLED]" not in n.flags:
-            try:
-                data = enableNetwork(s, server_file, n.id)
-            except BaseException as e:
-                data = e.message
-
-            out = out + data + '\n'
-    return out
 
 
 if __name__ == "__main__":
