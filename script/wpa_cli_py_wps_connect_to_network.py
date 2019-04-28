@@ -40,8 +40,8 @@ def main():
 
     parser = argparse.ArgumentParser(description='Force wpa_supplicant to connect to a network using wps.')
     parser.add_argument("ifname", help="Specify the interface that is being used.")
-    parser.add_argument("-p", "--pin", help="If present the wps_pin connection will be use.")
-    parser.add_argument("-b", "--bssid", help="The BSSID of the network. Specific for connections using pin. The default calue is any.", default='any')
+    parser.add_argument("-p", "--pin", help="If present, the wps_pin connection will be use.")
+    parser.add_argument("-b", "--bssid", help="The BSSID of the network. Specific for connections using pin. The default value is any.", default='any')
     args = parser.parse_args()
 
     server_file = "/var/run/wpa_supplicant/" + args.ifname  # type: str
